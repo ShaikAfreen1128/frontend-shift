@@ -1,73 +1,84 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
 const ClientSummaryPage = () => {
-  const location = useLocation();
-  const data = location.state?.data || [];
+  const [summaryData, setSummaryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const rows = Array.isArray(data) ? data : [data];
-  console.log("Received rows:", rows);
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/summary/client-shift-summary");
 
-  const summary = {};
+        if (!response.ok) {
+          throw new Error("Failed to fetch summary data");
+        }
 
-  rows.forEach((row) => {
-    const client = row["Client"] || "Unknown Client";
+        const data = await response.json();
 
-    if (!summary[client]) {
-      summary[client] = {
-        employees: 0,
-        shiftA: 0,
-        shiftB: 0,
-        shiftC: 0,
-        prime: 0,
-        totalAllowances: 0,
-      };
-    }
-    const toNumber = (value) => {
-      if (!value) return 0;
-      return Number(String(value).replace(/[₹, ]/g, "").trim()) || 0;
+        const transformed = data.map((item) => ({
+          client: item.client,
+          employees: item.total_employees,
+          shiftA: item.shift_a_days,
+          shiftB: item.shift_b_days,
+          shiftC: item.shift_c_days,
+          prime: item.prime_days,
+        }));
+
+        setSummaryData(transformed);
+      } catch (err) {
+        setError("Unable to fetch summary data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    summary[client].employees += 1;
-    summary[client].shiftA += toNumber(row["Shift A (09 PM to 06 AM) INR 500"]);
-    summary[client].shiftB += toNumber(row["Shift B (04 PM to 01 AM) INR 350"]);
-    summary[client].shiftC += toNumber(row["Shift C (06 AM to 03 PM) INR 100"]);
-    summary[client].prime += toNumber(row["Prime (12 AM to 09 AM) INR 700"]);
-    summary[client].totalAllowances += toNumber(row["TOTAL DAYS Allowances"]);
-  });
-
-  const clients = Object.keys(summary);
+    fetchSummary();
+  }, []);
 
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4">Client Summary</h2>
-      {clients.length === 0 ? (
-        <p>No client data available.</p>
+
+      {loading ? (
+        <p>Loading summary data...</p>
       ) : (
         <table className="border-collapse border border-gray-300 w-full text-sm text-gray-700">
           <thead>
             <tr className="bg-gray-100">
               <th className="border px-2 py-1">Client</th>
               <th className="border px-2 py-1">Employees</th>
-              <th className="border px-2 py-1">Shift A (09 PM to 06 AM) INR 500</th>
-              <th className="border px-2 py-1">Shift B (04 PM to 01 AM) INR 350</th>
-              <th className="border px-2 py-1">Shift C (06 AM to 03 PM) INR 100</th>
-              <th className="border px-2 py-1">Prime (12 AM to 09 AM) INR 700</th>
-              <th className="border px-2 py-1">Total Allowances</th>
+              <th className="border px-2 py-1">Shift A (09 PM to 06 AM)</th>
+              <th className="border px-2 py-1">Shift B (04 PM to 01 AM)</th>
+              <th className="border px-2 py-1">Shift C (06 AM to 03 PM)</th>
+              <th className="border px-2 py-1">Prime (12 AM to 09 AM)</th>
             </tr>
           </thead>
           <tbody>
-            {clients.map((client) => (
-              <tr key={client}>
-                <td className="border px-2 py-1">{client}</td>
-                <td className="border px-2 py-1">{summary[client].employees}</td>
-                <td className="border px-2 py-1">{summary[client].shiftA}</td>
-                <td className="border px-2 py-1">{summary[client].shiftB}</td>
-                <td className="border px-2 py-1">{summary[client].shiftC}</td>
-                <td className="border px-2 py-1">{summary[client].prime}</td>
-                <td className="border px-2 py-1">{summary[client].totalAllowances}</td>
+            {error ? (
+              <tr>
+                <td colSpan="7" className="text-center text-red-500 py-6 font-medium">
+                  {error}
+                </td>
               </tr>
-            ))}
+            ) : summaryData.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="text-center py-6 text-gray-500 font-medium">
+                  No summary data available.
+                </td>
+              </tr>
+            ) : (
+              summaryData.map((item, index) => (
+                <tr key={index}>
+                  <td className="border px-2 py-1">{item.client}</td>
+                  <td className="border px-2 py-1">{item.employees}</td>
+                  <td className="border px-2 py-1">{item.shiftA}</td>
+                  <td className="border px-2 py-1">{item.shiftB}</td>
+                  <td className="border px-2 py-1">{item.shiftC}</td>
+                  <td className="border px-2 py-1">{item.prime}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       )}

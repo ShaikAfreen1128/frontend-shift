@@ -122,19 +122,21 @@ const DataTable = ({ headers, rows }) => {
           Summary
         </button>
       </div>
+      
+    {/* Search - only visible after file upload */}
+{rows && rows.length > 0 && (
+  <div className="mb-4 flex items-center gap-3">
+    <input
+      type="text"
+      placeholder="Search..."
+      value={searchQuery}
+      onChange={(e) => handleSearch(e.target.value)}
+      className="w-1/3 min-w-[200px] px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+    />
+  </div>
+)}
 
-      {/* Search */}
-      <div className="mb-4 flex items-center gap-3">
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="w-1/3 min-w-[200px] px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
-        />
-      </div>
-
-      {/* Table */}
+    {/* Table */}
       <table className="w-full border-collapse text-sm text-gray-800">
         <thead className="bg-gray-100 sticky top-0 z-10">
           <tr>

@@ -48,7 +48,7 @@ const FileInput = () => {
           className="text-gray-600 text-sm italic truncate max-w-xs"
           title={fileName}
         >
-          {fileName ? `📄 ${fileName}` : "No file selected"}
+          {fileName ? ` ${fileName}` : "No file selected"}
         </span></div>
 
         <button

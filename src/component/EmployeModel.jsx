@@ -42,8 +42,11 @@ const EmployeeModal = ({ employee, headers, onClose, onSave }) => {
 
         {/* Body */}
         <div className="p-6 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
-          {headers.map((header) => {
-            const isReadonly = header === "Emp ID" || header === "Emp Name" || header === "Department" || header === "Project" || header === "Project Code" || header === "Account Manager" || header === "Current Status(e)" || header === "Client";
+          {/* {headers.map((header) => { */}
+          {headers
+             .filter((header) => header !== "_isMatch").map((header) => {
+
+            const isReadonly = header === "Emp ID" || header === "Emp Name" || header === "Department" || header === "Project" || header === "Project Code" || header === "Account Manager" || header === "Current Status(e)" || header === "Client" || header === "Practice Lead/ Head" || header === "Delivery/ Project Manager" || header === "Duration Month" || header === "Payroll Month" || header === "# Shift Types(e)" || header === "TOTAL DAYS" || header === "Timesheet Billable Days" || header === "Timesheet Non Billable Days" || header === "Diff" || header === "Grade" || header === "Final Total Days" || header === "Billability Status" || header === "Practice Remarks" || header === "RMG Comments" || header === "Amar Approval" || header === "Shift A Allowances" || header === "Shift B Allowances"||header==="Shift C Allowances" || header === "Prime Allowances" || header ==="TOTAL DAYS Allowances" ||header === "AM Email Attempt(e)" || header === "AM Approval Status(e)" || header === "error" || header === "_isMatch";
 
             return (
               <div key={header} className="flex flex-col">
